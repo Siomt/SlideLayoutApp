@@ -26,7 +26,6 @@ public class SlideLayout extends RelativeLayout {
     private boolean haveSavePoint = false;
     private boolean isOut = false;
     private boolean isMove = false;
-    private boolean isScroll = false;
 
     public SlideLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -204,10 +203,8 @@ public class SlideLayout extends RelativeLayout {
          */
         @Override
         public void onStartScrollListener(boolean isComplete) {
-            isScroll = true;
             if (isComplete && slideStatusListener != null) {
                 float length = moveLeft - downLeft;//手指移动的距离
-                isScroll = false;
                 isMove = false;
                 if (recentChildLeft < 0) {
                     return;
