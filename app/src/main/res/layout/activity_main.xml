@@ -7,11 +7,11 @@
     android:background="@mipmap/radio"
     tools:context="sun.com.slidelayoutapp.MainActivity">
 
-    <sun.com.slipelayoutlibrary.SlipeLayout
+    <sun.com.slipelayoutlibrary.SlideLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
@@ -26,34 +26,17 @@
                 android:text="@string/text" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/gone_view"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/text" />
+                android:text="消失的内容" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/text" />
+        </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:text="@string/text" />
-        </LinearLayout>
-    </sun.com.slipelayoutlibrary.SlipeLayout>
+        <Button
+            android:id="@+id/btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="改布局" />
+    </sun.com.slipelayoutlibrary.SlideLayout>
 </RelativeLayout>

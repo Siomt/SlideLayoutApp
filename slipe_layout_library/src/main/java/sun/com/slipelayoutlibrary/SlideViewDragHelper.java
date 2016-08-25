@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
+import android.widget.RelativeLayout;
 
 import java.util.Arrays;
 
@@ -41,7 +42,7 @@ import java.util.Arrays;
  * of useful operations and state tracking for allowing a user to drag and reposition
  * views within their parent ViewGroup.
  */
-public class SlipeViewDragHelper {
+public class SlideViewDragHelper {
     private static final String TAG = "ViewDragHelper";
 
     /**
@@ -137,7 +138,7 @@ public class SlipeViewDragHelper {
 
     private ScrollerCompat mScroller;
 
-    private final SlipeViewDragHelper.Callback mCallback;
+    private final SlideViewDragHelper.Callback mCallback;
 
     private View mCapturedView;
     private boolean mReleaseInProgress;
@@ -157,6 +158,10 @@ public class SlipeViewDragHelper {
         }
 
         public void onViewMove(MotionEvent event) {
+        }
+
+        public void onViewDragMove(MotionEvent event) {
+
         }
 
         /**
@@ -359,8 +364,8 @@ public class SlipeViewDragHelper {
      * @param cb        Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
-    public static SlipeViewDragHelper create(ViewGroup forParent, SlipeViewDragHelper.Callback cb) {
-        return new SlipeViewDragHelper(forParent.getContext(), forParent, cb);
+    public static SlideViewDragHelper create(ViewGroup forParent, SlideViewDragHelper.Callback cb) {
+        return new SlideViewDragHelper(forParent.getContext(), forParent, cb);
     }
 
     /**
@@ -372,8 +377,8 @@ public class SlipeViewDragHelper {
      * @param cb          Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
-    public static SlipeViewDragHelper create(ViewGroup forParent, float sensitivity, SlipeViewDragHelper.Callback cb) {
-        final SlipeViewDragHelper helper = create(forParent, cb);
+    public static SlideViewDragHelper create(ViewGroup forParent, float sensitivity, SlideViewDragHelper.Callback cb) {
+        final SlideViewDragHelper helper = create(forParent, cb);
         helper.mTouchSlop = (int) (helper.mTouchSlop * (1 / sensitivity));
         return helper;
     }
@@ -386,7 +391,7 @@ public class SlipeViewDragHelper {
      * @param context   Context to initialize config-dependent params from
      * @param forParent Parent view to monitor
      */
-    private SlipeViewDragHelper(Context context, ViewGroup forParent, SlipeViewDragHelper.Callback cb) {
+    private SlideViewDragHelper(Context context, ViewGroup forParent, SlideViewDragHelper.Callback cb) {
         if (forParent == null) {
             throw new IllegalArgumentException("Parent view may not be null");
         }
@@ -736,6 +741,7 @@ public class SlipeViewDragHelper {
      * @return true if settle is still in progress
      */
     public boolean continueSettling(boolean deferCallbacks) {
+
         if (mDragState == STATE_SETTLING) {
             boolean keepGoing = mScroller.computeScrollOffset();
             final int x = mScroller.getCurrX();
@@ -1166,7 +1172,7 @@ public class SlipeViewDragHelper {
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
 
-                    dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
+                    dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy, ev);
 
                     saveLastMotion(ev);
                 } else {
@@ -1414,7 +1420,7 @@ public class SlipeViewDragHelper {
         dispatchViewReleased(xvel, yvel);
     }
 
-    private void dragTo(int left, int top, int dx, int dy) {
+    private void dragTo(int left, int top, int dx, int dy, MotionEvent ev) {
         int clampedX = left;
         int clampedY = top;
         final int oldLeft = mCapturedView.getLeft();
@@ -1434,6 +1440,7 @@ public class SlipeViewDragHelper {
             mCallback.onViewPositionChanged(mCapturedView, clampedX, clampedY,
                     clampedDx, clampedDy);
         }
+        mCallback.onViewDragMove(ev);
     }
 
     /**
@@ -1478,13 +1485,15 @@ public class SlipeViewDragHelper {
      */
     public View findTopChildUnder(int x, int y) {
         final int childCount = mParentView.getChildCount();
-        for (int i = childCount - 1; i >= 0; i--) {
+/*        for (int i = childCount - 1; i >= 0; i--) {
             final View child = mParentView.getChildAt(mCallback.getOrderedChildIndex(i));
-/*            if (x >= child.getLeft() && x < child.getRight() &&
+            if (x >= child.getLeft() && x < child.getRight() &&
                     y >= child.getTop() && y < child.getBottom()) {
                 return child;
-            }*/
-            return child;
+            }
+        }*/
+        if (childCount > 0) {
+            return mParentView.getChildAt(mCallback.getOrderedChildIndex(0));
         }
         return null;
     }

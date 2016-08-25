@@ -12,40 +12,43 @@ import android.widget.RelativeLayout;
  * Created by walkingMen on 16/8/23.
  * 滑动布局
  */
-public class SlipeLayout extends RelativeLayout {
+public class SlideLayout extends RelativeLayout {
     private final int OUTSLIPESPEED = 1000;
     private final int INSLIPESPEED = -1000;
-    private final int OUTSLIPELENGTH = 500;
-    private final int INSLIPELENGTH = -500;
 
-    private SlipeViewDragHelper mDragger;
+    private SlideViewDragHelper mDragger;
 
     private View mDragView;
 
     private Point mAutoBackOriginPos = new Point();
+    private boolean haveSavePoint = false;
+    private boolean isOut = false;
+    private boolean isMove = false;
 
-    public SlipeLayout(Context context, AttributeSet attrs) {
+    public SlideLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        if (getChildCount() > 1) {
+/*        if (getChildCount() > 1) {
             throw new RuntimeException("only have one child view");
-        }
+        }*/
         init();
 
     }
 
 
     private void init() {
-        mDragger = SlipeViewDragHelper.create(this, 1.0f, new SlipeCallback());
-        mDragger.setEdgeTrackingEnabled(SlipeViewDragHelper.EDGE_LEFT);
+        mDragger = SlideViewDragHelper.create(this, 1.0f, new SlipeCallback());
+        mDragger.setEdgeTrackingEnabled(SlideViewDragHelper.EDGE_LEFT);
     }
 
 
-    private class SlipeCallback extends SlipeViewDragHelper.Callback {
+    private class SlipeCallback extends SlideViewDragHelper.Callback {
+
         private int slipeLeft;
         private float downLeft;
         private float clampLeft;
         private float childLeft;
         private float moveLeft;
+
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
@@ -65,8 +68,14 @@ public class SlipeLayout extends RelativeLayout {
         }
 
         @Override
+        public void onViewDragMove(MotionEvent event) {
+            childLeft = getChildAt(0).getLeft();
+        }
+
+        @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             slipeLeft = left;
+            isMove = true;
         }
 
         @Override
@@ -88,52 +97,56 @@ public class SlipeLayout extends RelativeLayout {
         //手指释放的时候回调
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
+            final int OUTSLIPELENGTH = getWidth() / 2;
+            final int INSLIPELENGTH = -getWidth() / 2;
+
+            Log.d("SHF", "OUTSLIPELENGTH--" + OUTSLIPELENGTH);
             //mAutoBackView手指释放时可以自动回去
             if (releasedChild == mDragView) {
                 float length = moveLeft - downLeft;
-                Log.d("SHF", "onViewReleased--slipeLeft-->" + slipeLeft + "--downLeft-->" + downLeft + "--clampLeft-->" + clampLeft + "--moveLeft-->" + moveLeft);
-                Log.d("SHF", "onViewReleased--左滑还是右滑-->" + length + "--速度xvel-->" + xvel + "--当前位置childLeft-->" + childLeft + "--length-->" + length);
+                Log.d("SHF", "onViewReleased--左滑还是右滑-->" + (length >= 0 ? "右滑" : "左滑") + "--速度xvel-->" + xvel + "--当前位置childLeft-->" + childLeft + "--length-->" + length);
                 if (length >= 0) {//右滑
                     if (xvel >= 0 && xvel <= OUTSLIPESPEED//右滑 速度慢 没过最大滑动距离
-                            && childLeft == mAutoBackOriginPos.x
-                            && length <= OUTSLIPELENGTH) {
-                        mDragger.settleCapturedViewAt(mAutoBackOriginPos.x, mAutoBackOriginPos.y);
+                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)
+                            /*&& length <= OUTSLIPELENGTH*/) {
+                        slideIn();
                         invalidate();
                         return;
                     }
 
                     if (xvel >= 0 && xvel <= OUTSLIPESPEED
-                            && childLeft == mAutoBackOriginPos.x
-                            && length >= OUTSLIPELENGTH) {//右滑 速度慢 超过最大滑动距离
-                        mDragger.settleCapturedViewAt(getWidth(), mAutoBackOriginPos.y);
+                            && (childLeft > OUTSLIPELENGTH)
+                            /*&& length > OUTSLIPELENGTH*/) {//右滑 速度慢 超过最大滑动距离
+                        slideOut();
                         invalidate();
                         return;
                     }
 
                     if (xvel > OUTSLIPESPEED) {//右滑 速度快
-                        mDragger.settleCapturedViewAt(getWidth(), mAutoBackOriginPos.y);
+                        slideOut();
                         invalidate();
                         return;
                     }
+
                 } else {//左滑
                     if (xvel >= INSLIPESPEED && xvel <= 0
-                            && childLeft == getWidth()
-                            && length >= INSLIPELENGTH) {//左滑 速度慢 没过最大滑动距离
-                        mDragger.settleCapturedViewAt(getWidth(), mAutoBackOriginPos.y);
+                            && (childLeft > OUTSLIPELENGTH)
+                            /*&& length > INSLIPELENGTH*/) {//左滑 速度慢 没过最大滑动距离
+                        slideOut();
                         invalidate();
                         return;
                     }
 
                     if (xvel >= INSLIPESPEED && xvel <= 0
-                            && childLeft == getWidth()
-                            && length <= OUTSLIPELENGTH) {//右滑 速度慢 超过最大滑动距离
-                        mDragger.settleCapturedViewAt(mAutoBackOriginPos.x, mAutoBackOriginPos.y);
+                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)
+                            /*&& length <= OUTSLIPELENGTH*/) {//右滑 速度慢 超过最大滑动距离
+                        slideIn();
                         invalidate();
                         return;
                     }
 
                     if (xvel < OUTSLIPESPEED) {//左滑 速度快
-                        mDragger.settleCapturedViewAt(mAutoBackOriginPos.x, mAutoBackOriginPos.y);
+                        slideIn();
                         invalidate();
                         return;
                     }
@@ -158,6 +171,16 @@ public class SlipeLayout extends RelativeLayout {
         }
     }
 
+    private void slideOut() {
+        mDragger.settleCapturedViewAt(getWidth(), mAutoBackOriginPos.y);
+        isOut = true;
+    }
+
+    private void slideIn() {
+        mDragger.settleCapturedViewAt(mAutoBackOriginPos.x, mAutoBackOriginPos.y);
+        isOut = false;
+    }
+
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
@@ -180,10 +203,25 @@ public class SlipeLayout extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        //记录初始坐标
-        mAutoBackOriginPos.x = mDragView.getLeft();
-        mAutoBackOriginPos.y = mDragView.getTop();
+        if (!isOut && !isMove) {
+            super.onLayout(changed, l, t, r, b);
+        } else {
+            final int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = getChildAt(i);
+                Log.d("SHF", "onLayout---left--" + child.getLeft());
+                if (child.getVisibility() != GONE) {
+                    child.layout(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
+                }
+            }
+        }
+
+        if (!haveSavePoint) {
+            //记录初始坐标
+            mAutoBackOriginPos.x = mDragView.getLeft();
+            mAutoBackOriginPos.y = mDragView.getTop();
+            haveSavePoint = true;
+        }
     }
 
     @Override
