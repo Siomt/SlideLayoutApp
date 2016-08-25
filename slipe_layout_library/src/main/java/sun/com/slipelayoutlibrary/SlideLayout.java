@@ -43,10 +43,8 @@ public class SlideLayout extends RelativeLayout {
 
     private class SlipeCallback extends SlideViewDragHelper.Callback {
 
-        private int slipeLeft;
-        private float downLeft;
-        private float clampLeft;
-        private float childLeft;
+        private float downLeft;//点击 child0 的left
+        private float childLeft;//移动时  child0 的left
         private float moveLeft;
 
 
@@ -74,13 +72,11 @@ public class SlideLayout extends RelativeLayout {
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            slipeLeft = left;
             isMove = true;
         }
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            clampLeft = left;
             return left;
         }
 
@@ -98,25 +94,22 @@ public class SlideLayout extends RelativeLayout {
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             final int OUTSLIPELENGTH = getWidth() / 2;
-            final int INSLIPELENGTH = -getWidth() / 2;
 
             Log.d("SHF", "OUTSLIPELENGTH--" + OUTSLIPELENGTH);
             //mAutoBackView手指释放时可以自动回去
             if (releasedChild == mDragView) {
-                float length = moveLeft - downLeft;
+                float length = moveLeft - downLeft;//手指移动的距离
                 Log.d("SHF", "onViewReleased--左滑还是右滑-->" + (length >= 0 ? "右滑" : "左滑") + "--速度xvel-->" + xvel + "--当前位置childLeft-->" + childLeft + "--length-->" + length);
                 if (length >= 0) {//右滑
                     if (xvel >= 0 && xvel <= OUTSLIPESPEED//右滑 速度慢 没过最大滑动距离
-                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)
-                            /*&& length <= OUTSLIPELENGTH*/) {
+                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)) {
                         slideIn();
                         invalidate();
                         return;
                     }
 
                     if (xvel >= 0 && xvel <= OUTSLIPESPEED
-                            && (childLeft > OUTSLIPELENGTH)
-                            /*&& length > OUTSLIPELENGTH*/) {//右滑 速度慢 超过最大滑动距离
+                            && (childLeft > OUTSLIPELENGTH)) {//右滑 速度慢 超过最大滑动距离
                         slideOut();
                         invalidate();
                         return;
@@ -130,16 +123,14 @@ public class SlideLayout extends RelativeLayout {
 
                 } else {//左滑
                     if (xvel >= INSLIPESPEED && xvel <= 0
-                            && (childLeft > OUTSLIPELENGTH)
-                            /*&& length > INSLIPELENGTH*/) {//左滑 速度慢 没过最大滑动距离
+                            && (childLeft > OUTSLIPELENGTH)) {//左滑 速度慢 没过最大滑动距离
                         slideOut();
                         invalidate();
                         return;
                     }
 
                     if (xvel >= INSLIPESPEED && xvel <= 0
-                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)
-                            /*&& length <= OUTSLIPELENGTH*/) {//右滑 速度慢 超过最大滑动距离
+                            && (childLeft <= OUTSLIPELENGTH && childLeft >= 0)) {//右滑 速度慢 超过最大滑动距离
                         slideIn();
                         invalidate();
                         return;
