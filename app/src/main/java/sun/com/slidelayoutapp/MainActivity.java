@@ -12,9 +12,12 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import sun.com.slipelayoutlibrary.SlideLayout;
+
 public class MainActivity extends AppCompatActivity {
     private Button btn;
     private TextView gone_view;
+    private SlideLayout slide;
     private boolean isGone = false;
     private Handler handler = new Handler() {
         @Override
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btn = (Button) findViewById(R.id.btn);
         gone_view = (TextView) findViewById(R.id.gone_view);
+        slide = (SlideLayout) findViewById(R.id.slide);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
         long delay = 0;
         long intevalPeriod = 200;
         timer.scheduleAtFixedRate(timerTask, delay, intevalPeriod);  //执行的时间毫秒
+
+        slide.setSlideStatusListener(new SlideLayout.OnSlideStatusListener() {
+            @Override
+            public void slideOutComplete() {
+                Log.d("SHF", "slideOutComplete");
+            }
+
+            @Override
+            public void slideInComplete() {
+                Log.d("SHF", "slideInComplete");
+            }
+        });
     }
 
     TimerTask timerTask = new TimerTask() {
@@ -65,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             gone_view.setVisibility(View.VISIBLE);
         }
         isGone = !isGone;
-        Log.d("SHF", "changeState--" + isGone);
     }
 
     @Override

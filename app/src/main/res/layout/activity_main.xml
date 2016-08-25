@@ -8,6 +8,7 @@
     tools:context="sun.com.slidelayoutapp.MainActivity">
 
     <sun.com.slipelayoutlibrary.SlideLayout
+        android:id="@+id/slide"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

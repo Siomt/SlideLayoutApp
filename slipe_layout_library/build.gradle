@@ -1,13 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+
 // 这个version是区分library版本的，因此当我们需要更新library时记得修改这个version
 // 这个version影响后面的引用
 version = "0.0.1"
 android {
     resourcePrefix "sun" //随意填写
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         minSdkVersion 19
@@ -89,7 +90,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "com.slidelayout"    //发布到JCenter上的项目名字
+        name = "slidelayout"    //发布到JCenter上的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]

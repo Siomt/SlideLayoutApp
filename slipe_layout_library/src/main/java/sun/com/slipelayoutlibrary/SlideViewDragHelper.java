@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-import android.widget.RelativeLayout;
 
 import java.util.Arrays;
 
@@ -43,7 +42,7 @@ import java.util.Arrays;
  * views within their parent ViewGroup.
  */
 public class SlideViewDragHelper {
-    private static final String TAG = "ViewDragHelper";
+    private static final String TAG = "SlideViewDragHelper";
 
     /**
      * A null/invalid pointer ID.
@@ -145,6 +144,7 @@ public class SlideViewDragHelper {
 
     private final ViewGroup mParentView;
 
+
     /**
      * A Callback is used as a communication channel with the ViewDragHelper back to the
      * parent view using it. <code>on*</code>methods are invoked on siginficant events and several
@@ -152,7 +152,17 @@ public class SlideViewDragHelper {
      * about the state of the parent view upon request. The callback also makes decisions
      * governing the range and draggability of child views.
      */
+
     public static abstract class Callback {
+        private boolean isScroll;
+
+        public void onStartScrollListener(boolean isComplete) {
+            isScroll = !isComplete;
+        }
+
+        public boolean isScroll() {
+            return isScroll;
+        }
 
         public void onViewDown(MotionEvent event) {
         }
@@ -744,6 +754,9 @@ public class SlideViewDragHelper {
 
         if (mDragState == STATE_SETTLING) {
             boolean keepGoing = mScroller.computeScrollOffset();
+            if (mCallback != null) {
+                mCallback.onStartScrollListener(!keepGoing);
+            }
             final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
             final int dx = x - mCapturedView.getLeft();
@@ -1171,9 +1184,7 @@ public class SlideViewDragHelper {
                     final float y = MotionEventCompat.getY(ev, index);
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
-
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy, ev);
-
                     saveLastMotion(ev);
                 } else {
                     // Check to see if any pointer is now over a draggable view.
