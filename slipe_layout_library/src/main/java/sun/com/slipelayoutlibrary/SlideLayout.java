@@ -13,10 +13,11 @@ import android.widget.RelativeLayout;
  * 滑动布局
  */
 public class SlideLayout extends RelativeLayout {
-    private OnSlideStatusListener slideStatusListener;
+    private final String TAG = SlideLayout.class.getSimpleName();
+    public OnSlideStatusListener slideStatusListener;
 
-    private final int OUTSLIPESPEED = 1000;
-    private final int INSLIPESPEED = -1000;
+    private final int OUTSLIPESPEED = 3000;
+    private final int INSLIPESPEED = -3000;
 
     private SlideViewDragHelper mDragger;
 
@@ -30,10 +31,9 @@ public class SlideLayout extends RelativeLayout {
     public SlideLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
-
     }
 
-    public void setSlideStatusListener(OnSlideStatusListener slideStatusListener) {
+    public void setOnSlideStatusListener(OnSlideStatusListener slideStatusListener) {
         this.slideStatusListener = slideStatusListener;
     }
 
@@ -111,8 +111,19 @@ public class SlideLayout extends RelativeLayout {
             if (releasedChild == mDragView) {
                 float length = moveLeft - downLeft;//手指移动的距离
                 recentChildLeft = childLeft;
-                Log.d("SHF", "onViewReleased--left or right-->" + (length >= 0 ? "right" : "left") + "--速度xvel-->" + xvel + "--当前位置childLeft-->" + childLeft + "--length-->" + length);
+                Log.d(TAG, "onViewReleased--left or right-->" + (length >= 0 ? "right" : "left") + "--速度xvel-->" + xvel + "--当前位置childLeft-->" + childLeft + "--length-->" + length);
 
+                if (xvel > OUTSLIPESPEED) {//右滑 速度快
+                    slideOut();
+                    invalidate();
+                    return;
+                }
+
+                if (xvel < INSLIPESPEED) {//左滑 速度快
+                    slideIn();
+                    invalidate();
+                    return;
+                }
                 if (length >= 0) {//右滑
 
                     if (childLeft > getWidth()) {
@@ -147,13 +158,9 @@ public class SlideLayout extends RelativeLayout {
                         return;
                     }
 
-                    if (xvel > OUTSLIPESPEED) {//右滑 速度快
-                        slideOut();
-                        invalidate();
-                        return;
-                    }
 
                 } else {//左滑
+
                     if (childLeft < 0) {//滑到左屏幕外头
                         slideIn();
                         invalidate();
@@ -185,12 +192,6 @@ public class SlideLayout extends RelativeLayout {
                         invalidate();
                         return;
                     }
-
-                    if (xvel < INSLIPESPEED) {//左滑 速度快
-                        slideIn();
-                        invalidate();
-                        return;
-                    }
                 }
             }
         }
@@ -212,31 +213,37 @@ public class SlideLayout extends RelativeLayout {
                 if (recentChildLeft > getWidth()) {
                     return;
                 }
-                Log.d("SHF", "onstartScrollListener--left or right-->"
+                Log.d(TAG, "onstartScrollListener--left or right-->"
                         + (length >= 0 ? "right" : "left") + "--dragXSpeed-->"
                         + dragXSpeed + "--当前位置recentChildLeft-->" + recentChildLeft
                         + "--length-->" + length + "--beforeChildLeft-->" + beforeChildLeft);
 
                 if (beforeChildLeft <= mAutoBackOriginPos.x) {
-                    if (recentChildLeft > screenMiddle) {
+                    if (dragXSpeed > OUTSLIPESPEED) {//右滑 速度快
                         slideStatusListener.slideOutComplete();
                         return;
                     }
-                    if (dragXSpeed > OUTSLIPESPEED) {//右滑 速度快
+                    if (dragXSpeed < INSLIPESPEED) {
+                        return;
+                    }
+                    if (dragXSpeed >= INSLIPESPEED && recentChildLeft > screenMiddle) {
                         slideStatusListener.slideOutComplete();
                         return;
                     }
                 }
                 if (beforeChildLeft >= getWidth()) {
-                    if (recentChildLeft < screenMiddle) {
-                        slideStatusListener.slideInComplete();
-                        return;
-                    }
-
                     if (dragXSpeed < INSLIPESPEED) {
                         slideStatusListener.slideInComplete();
                         return;
                     }
+                    if (dragXSpeed > OUTSLIPESPEED) {
+                        return;
+                    }
+                    if (dragXSpeed <= OUTSLIPESPEED && recentChildLeft < screenMiddle) {
+                        slideStatusListener.slideInComplete();
+                        return;
+                    }
+
                 }
 
             }
@@ -273,6 +280,7 @@ public class SlideLayout extends RelativeLayout {
      */
     @Override
     public void computeScroll() {
+        super.computeScroll();
         if (mDragger.continueSettling(true)) {
             invalidate();
         }

@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         long intevalPeriod = 200;
         timer.scheduleAtFixedRate(timerTask, delay, intevalPeriod);  //执行的时间毫秒
 
-        slide.setSlideStatusListener(new SlideLayout.OnSlideStatusListener() {
+        slide.setOnSlideStatusListener(new SlideLayout.OnSlideStatusListener() {
             @Override
             public void slideOutComplete() {
                 Log.d("SHF", "slideOutComplete");

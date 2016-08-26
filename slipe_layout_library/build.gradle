@@ -4,11 +4,11 @@ apply plugin: 'com.jfrog.bintray'
 
 // 这个version是区分library版本的，因此当我们需要更新library时记得修改这个version
 // 这个version影响后面的引用
-version = "0.0.1"
+version = "0.0.3"
 android {
     resourcePrefix "sun" //随意填写
     compileSdkVersion 24
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "24.0.1"
 
     defaultConfig {
         minSdkVersion 19
@@ -27,8 +27,8 @@ android {
     }
 }
 
-def siteUrl = 'https://github.com/shf981862482/SunMultiLib'   // 项目的主页
-def gitUrl = 'git@github.com/shf981862482/SunMultiLib.git'   // Git仓库的url
+def siteUrl = 'https://github.com/shf981862482/SlideLayoutApp.git'   // 项目的主页
+def gitUrl = 'git@github.com:shf981862482/SlideLayoutApp.git'   // Git仓库的url
 group = "com.slidelayout"            // Maven Group ID for the artifact，一般填你唯一的包名
 
 install {

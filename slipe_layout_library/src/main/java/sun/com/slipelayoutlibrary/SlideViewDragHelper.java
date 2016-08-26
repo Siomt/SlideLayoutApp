@@ -26,7 +26,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompat;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -42,7 +41,7 @@ import java.util.Arrays;
  * views within their parent ViewGroup.
  */
 public class SlideViewDragHelper {
-    private static final String TAG = "SlideViewDragHelper";
+    private static final String TAG = SlideViewDragHelper.class.getSimpleName();
 
     /**
      * A null/invalid pointer ID.
