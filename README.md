@@ -1,6 +1,5 @@
 # SlideLayoutApp
-SlideLayoutApp
-博客：  http://blog.csdn.net/qq_28195645/article/details/52318155
+
 
 ##需求：
 将复杂的内容布局 通过向右拖拽或者是快速向右滑动将其移动到最右边
